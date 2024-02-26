@@ -62,7 +62,8 @@ def set_device_address(serial, overwrite=False):
         while overwrite != ("y" or "n"):
             overwrite = input("(y/n)")
             if overwrite == "y":
-                dashboard.devices.updateDevice(serial, address=config.DEVICE_ADDRESS)
+                dashboard.devices.updateDevice(serial, address=config.DEVICE_ADDRESS, moveMapMarker=False)
+                dashboard.devices.updateDevice(serial, moveMapMarker=True)
                 break
             elif overwrite == "n":
                 break
