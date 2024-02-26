@@ -75,13 +75,26 @@ def main():
     Main program file
     :return:
     """
-    if len(config.NET_ID) > 0 or len(config.API_KEY) > 0:
-        devices_in_network = get_devices_in_network(config.NET_ID)
+    if len(config.ORG_ID) == 0:
+        print("Organization ID is empty, here is a list of organizations available to API-key")
+        orgs = dashboard.organizations.getOrganizations()
+        for org in orgs:
+            print("Organization name: " + org['name'] + " ID:" + org['id'])
 
-        for device in devices_in_network:
-            set_device_address(device, overwrite=False)
-    else:
-        print("Must enter API key and network ID on config file")
+        sys.exit("Enter organization ID in config file")
+
+    if len(config.NET_ID) == 0:
+        print("Network ID empty, here is a list of networks in organization")
+        networks = dashboard.organizations.getOrganizationNetworks(config.ORG_ID)
+        for network in networks:
+            print("Network name: " + network['name'] + " Network ID: " + network['id'])
+
+        sys.exit("Enter network ID in config file")
+        
+    devices_in_network = get_devices_in_network(config.NET_ID)
+
+    for device in devices_in_network:
+        set_device_address(device, overwrite=False)
 
 
 if __name__ == '__main__':
