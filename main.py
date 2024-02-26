@@ -1,12 +1,17 @@
 """
-This Python script will change the address for all Meraki devices in a given organization
+This Python script will change the address for all Meraki devices in a given network within one organization.
 """
-
+import sys
 
 import meraki
 import config
 
-dashboard = meraki.DashboardAPI(config.API_KEY, suppress_logging=True)
+
+try:
+    dashboard = meraki.DashboardAPI(config.API_KEY, suppress_logging=True)
+except meraki.APIKeyError as e:
+    print(e.message)
+    sys.exit()
 
 
 def get_devices_in_network(net_id):
@@ -15,7 +20,11 @@ def get_devices_in_network(net_id):
     :param net_id: Network ID.
     :return: List of serials.
     """
-    devices_in_network = dashboard.networks.getNetworkDevices(net_id)
+    try:
+        devices_in_network = dashboard.networks.getNetworkDevices(net_id)
+    except meraki.APIError as e:
+        print(e.message['errors'])
+        quit()
 
     devices = []
 
@@ -66,10 +75,13 @@ def main():
     Main program file
     :return:
     """
-    devices_in_network = get_devices_in_network(config.NET_ID)
+    if len(config.NET_ID) > 0 or len(config.API_KEY) > 0:
+        devices_in_network = get_devices_in_network(config.NET_ID)
 
-    for device in devices_in_network:
-        set_device_address(device, overwrite=False)
+        for device in devices_in_network:
+            set_device_address(device, overwrite=False)
+    else:
+        print("Must enter API key and network ID on config file")
 
 
 if __name__ == '__main__':
